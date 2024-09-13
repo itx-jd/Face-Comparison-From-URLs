@@ -1,1 +1,1 @@
-web: python image_service.py
+web: python app.py
