@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify
 import requests
-from PIL import Image
 from io import BytesIO
 import base64
-import os
+from PIL import Image
 
 app = Flask(__name__)
 
@@ -15,16 +14,19 @@ def download_image(url):
     # Extract the file name without query parameters
     img_name_with_ext = url.split("/")[-1].split("?")[0]
     
-    img = Image.open(BytesIO(response.content))
-    img.save(img_name_with_ext)
+    with open(img_name_with_ext, 'wb') as file:
+        file.write(response.content)
+    
     return img_name_with_ext
 
 # Function to save a base64-encoded image string to a file
 def save_base64_image(base64_str):
     image_data = base64.b64decode(base64_str)
-    img = Image.open(BytesIO(image_data))
     img_path = "base64_image.jpg"  # Save it with a default name
-    img.save(img_path)
+
+    with open(img_path, 'wb') as file:
+        file.write(image_data)
+
     return img_path
 
 @app.route('/process_image', methods=['POST'])
@@ -50,6 +52,4 @@ def process_image():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 5001))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=5001)
